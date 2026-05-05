@@ -1,0 +1,113 @@
+/* CONTENEDOR GENERAL */
+.form-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: black;
+  padding: 20px;
+}
+
+/* CARD */
+.form-card {
+  width: 100%;
+  max-width: 420px;
+  background: rgba(255, 255, 255, 0.05);
+  backdrop-filter: blur(12px);
+  border-radius: 20px;
+  padding: 30px;
+  color: white;
+  box-shadow: 0 0 40px rgba(0, 0, 0, 0.6);
+  animation: fadeIn 0.6s ease;
+}
+
+/* TITULOS */
+.form-title {
+  font-size: 26px;
+  margin-bottom: 5px;
+}
+
+.form-subtitle {
+  font-size: 14px;
+  color: #aaa;
+  margin-bottom: 20px;
+}
+
+/* GRID */
+.form-row {
+  display: flex;
+  gap: 10px;
+}
+
+/* INPUTS 🔥 */
+.form-input {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 12px;
+  border-radius: 12px;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.06);
+  color: white;
+  outline: none;
+  font-size: 14px;
+  transition: all 0.2s ease;
+}
+
+/* placeholder */
+.form-input::placeholder {
+  color: #888;
+}
+
+/* focus PRO */
+.form-input:focus {
+  border: 1px solid #E5B129;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 10px rgba(229, 177, 41, 0.3);
+}
+
+/* CHECKBOX */
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
+/* BOTÓN */
+.form-button {
+  width: 100%;
+  padding: 14px;
+  border-radius: 14px;
+  border: none;
+  background: #E5B129;
+  color: black;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.form-button:hover {
+  transform: scale(1.02);
+  box-shadow: 0 0 15px rgba(229, 177, 41, 0.4);
+}
+
+/* ANIMACIÓN */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(15px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.error {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: -8px;
+  margin-bottom: 8px;
+  display: block;
+}

@@ -1,0 +1,64 @@
+/* CONTENEDOR GENERAL */
+.auth-container {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  
+    background: black;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* IMAGEN DE FONDO */
+  .auth-bg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.4;
+  }
+  
+  /* CAJA */
+  .auth-box {
+    position: relative;
+    z-index: 2;
+  
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(10px);
+  
+    padding: 30px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 350px;
+  
+    color: white;
+    text-align: center;
+  }
+  
+  /* INPUTS */
+  .auth-box input {
+    width: 100%;
+    padding: 10px;
+    margin-top: 10px;
+    border-radius: 10px;
+    border: none;
+  }
+  
+  /* BOTONES */
+  .auth-box button {
+    width: 100%;
+    padding: 12px;
+    margin-top: 15px;
+    border-radius: 10px;
+    border: none;
+    background: #E5B129;
+    font-weight: bold;
+    cursor: pointer;
+  }
+  
+  /* LINKS */
+  .auth-box p {
+    margin-top: 15px;
+    cursor: pointer;
+  }
