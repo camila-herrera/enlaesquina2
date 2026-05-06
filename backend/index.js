@@ -9,7 +9,6 @@ const app = express()
 app.use(cors())
 app.use(express.json())
 
-// función para generar slug desde el nombre de fantasía
 const generarSlug = (texto) => {
   return texto
     .toLowerCase()
@@ -19,12 +18,10 @@ const generarSlug = (texto) => {
     .replace(/[^a-z0-9]/g, "")
 }
 
-// ✅ TEST
 app.get("/", (req, res) => {
   res.json({ mensaje: "Backend En la Esquina funcionando" })
 })
 
-// ✅ REGISTRO CLIENTE
 app.post("/registro/cliente", async (req, res) => {
   const {
     nombre, apellido, documento, es_extranjero,
@@ -56,7 +53,6 @@ app.post("/registro/cliente", async (req, res) => {
   }
 })
 
-// ✅ REGISTRO EMPRENDEDOR
 app.post("/registro/emprendedor", upload.array("imagenes", 3), async (req, res) => {
   const {
     nombre, apellido, documento, es_extranjero,
@@ -71,7 +67,6 @@ app.post("/registro/emprendedor", upload.array("imagenes", 3), async (req, res) 
 
   try {
     const imageUrls = req.files ? req.files.map(f => f.path) : []
-
     const hashedPassword = await bcrypt.hash(password, 10)
 
     const usuarioResult = await pool.query(
@@ -88,18 +83,15 @@ app.post("/registro/emprendedor", upload.array("imagenes", 3), async (req, res) 
       ? JSON.parse(paymentMethods)
       : paymentMethods
 
-    // Generar slug desde nombre de fantasía, o desde nombre si no hay fantasía
     const slugBase = businessFantasyName
       ? generarSlug(businessFantasyName)
       : generarSlug(businessName)
 
-    // Verificar que el slug no exista ya
     const slugExiste = await pool.query(
-      "SELECT id FROM emprendimientos WHERE slug = $1",
+      "SELECT id FROM emprendimientos WHERE LOWER(slug) = LOWER($1)",
       [slugBase]
     )
 
-    // Si existe, agregar un número al final
     const slug = slugExiste.rows.length > 0
       ? `${slugBase}${Date.now()}`
       : slugBase
@@ -138,14 +130,13 @@ app.post("/registro/emprendedor", upload.array("imagenes", 3), async (req, res) 
   }
 })
 
-// ✅ PERFIL PUBLICO POR SLUG
 app.get("/perfil/:slug", async (req, res) => {
   const { slug } = req.params
   try {
     const result = await pool.query(
       `SELECT e.*, u.username FROM emprendimientos e
        JOIN usuarios u ON e.usuario_id = u.id
-       WHERE e.slug = $1`,
+       WHERE LOWER(e.slug) = LOWER($1)`,
       [slug]
     )
     if (result.rows.length === 0) {
@@ -154,7 +145,6 @@ app.get("/perfil/:slug", async (req, res) => {
 
     const emprendimiento = result.rows[0]
 
-    // Si no autorizó dirección pública, ocultamos calle y número
     if (!emprendimiento.direccion_publica) {
       emprendimiento.calle = null
       emprendimiento.numero = null

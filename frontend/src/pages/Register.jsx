@@ -9,6 +9,8 @@ function Register({ goToLogin, goBack, userLocation }) {
   const [showTerms, setShowTerms] = useState(false)
   const [loading, setLoading] = useState(false)
   const [errorServidor, setErrorServidor] = useState("")
+  const [slugFinal, setSlugFinal] = useState(null)
+  const [copiado, setCopiado] = useState(false)
 
   const [formData, setFormData] = useState({
     nombre: "",
@@ -88,6 +90,7 @@ function Register({ goToLogin, goBack, userLocation }) {
       body.append("socialInstagram", formData.socialInstagram || "")
       body.append("socialX", formData.socialX || "")
       body.append("socialTiktok", formData.socialTiktok || "")
+      body.append("direccionPublica", formData.direccionPublica || false)
 
       if (formData.businessImages) {
         formData.businessImages.forEach(img => {
@@ -105,13 +108,22 @@ function Register({ goToLogin, goBack, userLocation }) {
         setErrorServidor(data.error || "Error al registrar")
         return
       }
-      goBack()
+
+      // Guardamos el slug para mostrar la pantalla final
+      setSlugFinal(data.slug)
+      setStep(3)
 
     } catch (error) {
       setErrorServidor("No se pudo conectar con el servidor")
     } finally {
       setLoading(false)
     }
+  }
+
+  const copiarLink = () => {
+    navigator.clipboard.writeText(`https://www.enlaesquina.cl/${slugFinal}`)
+    setCopiado(true)
+    setTimeout(() => setCopiado(false), 2000)
   }
 
   return (
@@ -135,6 +147,44 @@ function Register({ goToLogin, goBack, userLocation }) {
           setFormData={setFormData}
           userLocation={userLocation}
         />
+      )}
+
+      {/* PANTALLA FINAL */}
+      {step === 3 && slugFinal && (
+        <div style={styles.finalContainer}>
+          <div style={styles.finalCard}>
+
+            <p style={styles.emoji}>🎉</p>
+            <h2 style={styles.titulo}>¡Ya estás en la esquina!</h2>
+            <p style={styles.subtitulo}>
+              Tu emprendimiento está registrado. Comparte tu link y empieza a recibir clientes.
+            </p>
+
+            <div style={styles.linkBox}>
+              <p style={styles.linkText}>
+                enlaesquina.cl/<strong>{slugFinal}</strong>
+              </p>
+            </div>
+
+            <button onClick={copiarLink} style={styles.btnCopiar}>
+              {copiado ? "¡Copiado! ✅" : "📋 Copiar link"}
+            </button>
+
+            <a
+              href={`https://www.enlaesquina.cl/${slugFinal}`}
+              target="_blank"
+              rel="noreferrer"
+              style={styles.btnVerPagina}
+            >
+              Ver mi página 🚀
+            </a>
+
+            <button onClick={goBack} style={styles.btnVolver}>
+              Volver al inicio
+            </button>
+
+          </div>
+        </div>
       )}
 
       {showTerms && (
@@ -169,15 +219,99 @@ function Register({ goToLogin, goBack, userLocation }) {
         </p>
       )}
 
-      <p
-        onClick={goToLogin}
-        style={{ marginTop: "20px", cursor: "pointer", opacity: 0.7 }}
-      >
-        ¿Ya tienes cuenta? <strong>Inicia sesión aquí</strong>
-      </p>
+      {step !== 3 && (
+        <p
+          onClick={goToLogin}
+          style={{ marginTop: "20px", cursor: "pointer", opacity: 0.7 }}
+        >
+          ¿Ya tienes cuenta? <strong>Inicia sesión aquí</strong>
+        </p>
+      )}
 
     </div>
   )
+}
+
+const styles = {
+  finalContainer: {
+    minHeight: "80vh",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  finalCard: {
+    background: "rgba(255,255,255,0.05)",
+    borderRadius: "20px",
+    padding: "32px 24px",
+    textAlign: "center",
+    maxWidth: "400px",
+    width: "100%"
+  },
+  emoji: {
+    fontSize: "48px",
+    marginBottom: "8px"
+  },
+  titulo: {
+    fontSize: "24px",
+    fontWeight: "900",
+    marginBottom: "8px"
+  },
+  subtitulo: {
+    fontSize: "14px",
+    opacity: 0.7,
+    marginBottom: "24px",
+    lineHeight: "1.5"
+  },
+  linkBox: {
+    background: "rgba(229,177,41,0.1)",
+    border: "1px solid #E5B129",
+    borderRadius: "10px",
+    padding: "12px 16px",
+    marginBottom: "16px"
+  },
+  linkText: {
+    fontSize: "14px",
+    color: "#E5B129",
+    wordBreak: "break-all",
+    margin: 0
+  },
+  btnCopiar: {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "10px",
+    border: "1px solid rgba(255,255,255,0.3)",
+    background: "transparent",
+    color: "white",
+    cursor: "pointer",
+    fontSize: "14px",
+    marginBottom: "10px"
+  },
+  btnVerPagina: {
+    display: "block",
+    width: "100%",
+    padding: "12px",
+    borderRadius: "10px",
+    border: "none",
+    background: "#E5B129",
+    color: "black",
+    cursor: "pointer",
+    fontSize: "14px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+    textDecoration: "none",
+    boxSizing: "border-box"
+  },
+  btnVolver: {
+    width: "100%",
+    padding: "10px",
+    borderRadius: "10px",
+    border: "none",
+    background: "transparent",
+    color: "white",
+    cursor: "pointer",
+    fontSize: "13px",
+    opacity: 0.5
+  }
 }
 
 export default Register

@@ -38,14 +38,18 @@ function ComingSoon({ goToRegister, onLocationReady }) {
             </button>
           </div>
 
+          {/* PUBLICIDAD LINK PROPIO */}
+          <p style={styles.linkPromo}>
+            🔗 Obtén tu propia página gratis —{" "}
+            <span style={{ color: "#E5B129" }}>enlaesquina.cl/tunegocio</span>
+          </p>
+
           <span style={styles.subtext}>
             Cupos limitados en el lanzamiento
           </span>
 
           {location && (
-            <p style={styles.locationBadge}>
-              📍 Ubicación detectada
-            </p>
+            <p style={styles.locationBadge}>📍 Ubicación detectada</p>
           )}
 
         </div>
@@ -125,7 +129,7 @@ const styles = {
     opacity: 0.9
   },
   actionContainer: {
-    marginBottom: "20px"
+    marginBottom: "12px"
   },
   button: {
     background: "#E5B129",
@@ -137,6 +141,11 @@ const styles = {
     borderRadius: "30px",
     cursor: "pointer",
     animation: "pulse 2s infinite"
+  },
+  linkPromo: {
+    fontSize: "13px",
+    opacity: 0.8,
+    marginBottom: "12px"
   },
   subtext: {
     fontSize: "13px",
