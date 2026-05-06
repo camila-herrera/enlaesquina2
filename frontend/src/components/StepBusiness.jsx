@@ -169,7 +169,7 @@ function StepBusiness({ formData, setFormData, next, back }) {
           onChange={handleChange}
           className="form-input"
         />
-        {errors.businessName && <span className="error">{errors.businessName}</span>}
+        
 
         {/* NOMBRE FANTASÍA */}
         <input
@@ -179,7 +179,7 @@ function StepBusiness({ formData, setFormData, next, back }) {
           onChange={handleChange}
           className="form-input"
         />
-
+            {errors.businessName && <span className="error">{errors.businessName}</span>}
         {/* PREVIEW URL */}
         {slugPreview && (
           <div style={{
