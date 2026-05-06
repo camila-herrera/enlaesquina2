@@ -22,6 +22,20 @@ app.get("/", (req, res) => {
   res.json({ mensaje: "Backend En la Esquina funcionando" })
 })
 
+app.get("/verificar-slug/:slug", async (req, res) => {
+  const { slug } = req.params
+  try {
+    const result = await pool.query(
+      "SELECT id FROM emprendimientos WHERE LOWER(slug) = LOWER($1)",
+      [generarSlug(slug)]
+    )
+    res.json({ disponible: result.rows.length === 0 })
+  } catch (error) {
+    console.error(error)
+    res.status(500).json({ error: "Error en el servidor" })
+  }
+})
+
 app.post("/registro/cliente", async (req, res) => {
   const {
     nombre, apellido, documento, es_extranjero,

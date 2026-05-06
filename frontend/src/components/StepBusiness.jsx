@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import "../styles/form.css"
+import API_URL from "../config"
 
 const regionesYComunas = {
   "Región de Arica y Parinacota": ["Arica", "Camarones", "Putre", "General Lagos"],
@@ -43,8 +44,42 @@ const selectStyle = (hasValue) => ({
 const optionStyle = { color: "white", background: "#1a1a1a" }
 const optionPlaceholderStyle = { color: "rgba(255,255,255,0.5)", background: "#1a1a1a" }
 
+const generarSlugLocal = (texto) => {
+  return texto
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, "")
+    .replace(/[^a-z0-9]/g, "")
+}
+
 function StepBusiness({ formData, setFormData, next, back }) {
   const [errors, setErrors] = useState({})
+  const [slugDisponible, setSlugDisponible] = useState(null)
+  const [verificando, setVerificando] = useState(false)
+
+  useEffect(() => {
+    const nombre = formData.businessFantasyName || formData.businessName
+    if (!nombre || nombre.length < 3) {
+      setSlugDisponible(null)
+      return
+    }
+
+    const slug = generarSlugLocal(nombre)
+    setVerificando(true)
+
+    const timer = setTimeout(() => {
+      fetch(`${API_URL}/verificar-slug/${slug}`)
+        .then(res => res.json())
+        .then(data => {
+          setSlugDisponible(data.disponible)
+          setVerificando(false)
+        })
+        .catch(() => setVerificando(false))
+    }, 600)
+
+    return () => clearTimeout(timer)
+  }, [formData.businessFantasyName, formData.businessName])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -85,6 +120,7 @@ function StepBusiness({ formData, setFormData, next, back }) {
     if (!formData.businessComuna) newErrors.businessComuna = "Comuna requerida"
     if (!formData.businessStreet) newErrors.businessStreet = "Calle requerida"
     if (!formData.businessNumber) newErrors.businessNumber = "Número requerido"
+    if (slugDisponible === false) newErrors.businessFantasyName = "Este nombre ya está en uso"
     setErrors(newErrors)
     return Object.keys(newErrors).length === 0
   }
@@ -92,6 +128,8 @@ function StepBusiness({ formData, setFormData, next, back }) {
   const handleFinish = () => {
     if (validate()) next()
   }
+
+  const slugPreview = generarSlugLocal(formData.businessFantasyName || formData.businessName || "")
 
   return (
     <div className="form-container">
@@ -133,6 +171,7 @@ function StepBusiness({ formData, setFormData, next, back }) {
         />
         {errors.businessName && <span className="error">{errors.businessName}</span>}
 
+        {/* NOMBRE FANTASÍA */}
         <input
           name="businessFantasyName"
           placeholder="Nombre de fantasía (opcional)"
@@ -140,13 +179,26 @@ function StepBusiness({ formData, setFormData, next, back }) {
           onChange={handleChange}
           className="form-input"
         />
-        <p style={{ fontSize: "11px", opacity: 0.4, marginTop: "-8px", marginBottom: "8px" }}>
-          Tu página será enlaesquina.cl/{
-            formData.businessFantasyName
-              ? formData.businessFantasyName.toLowerCase().replace(/\s+/g, "").replace(/[^a-z0-9]/g, "")
-              : "tunombredefantasia"
-          }
-        </p>
+
+        {/* PREVIEW URL */}
+        {slugPreview && (
+          <div style={{
+            fontSize: "12px",
+            marginTop: "-8px",
+            marginBottom: "8px",
+            padding: "8px 12px",
+            borderRadius: "8px",
+            background: slugDisponible === false ? "rgba(255,0,0,0.08)" : "rgba(229,177,41,0.08)",
+            border: `1px solid ${slugDisponible === false ? "rgba(255,0,0,0.3)" : "rgba(229,177,41,0.3)"}`
+          }}>
+            <span style={{ opacity: 0.6 }}>Tu página será: </span>
+            <span style={{ color: "#E5B129" }}>enlaesquina.cl/{slugPreview}</span>
+            {verificando && <span style={{ opacity: 0.5, marginLeft: "8px" }}>verificando...</span>}
+            {!verificando && slugDisponible === true && <span style={{ color: "#25D366", marginLeft: "8px" }}>✓ disponible</span>}
+            {!verificando && slugDisponible === false && <span style={{ color: "#ff4444", marginLeft: "8px" }}>✗ ya está en uso</span>}
+          </div>
+        )}
+        {errors.businessFantasyName && <span className="error">{errors.businessFantasyName}</span>}
 
         {/* DESCRIPCIÓN */}
         <textarea
@@ -202,6 +254,73 @@ function StepBusiness({ formData, setFormData, next, back }) {
         />
         {errors.businessPhone && <span className="error">{errors.businessPhone}</span>}
 
+        {/* DIRECCIÓN */}
+        <p style={labelStyle}>Dirección del emprendimiento (privada) *</p>
+        <p style={{ fontSize: "12px", opacity: 0.5, marginBottom: "10px" }}>
+          Tu dirección no será visible públicamente. La usamos solo para mostrarte a personas cercanas.
+        </p>
+
+        <select
+          name="businessRegion"
+          value={formData.businessRegion || ""}
+          onChange={handleChange}
+          className="form-input"
+          style={selectStyle(formData.businessRegion)}
+        >
+          <option value="" style={optionPlaceholderStyle}>Selecciona una región *</option>
+          {Object.keys(regionesYComunas).map(region => (
+            <option key={region} value={region} style={optionStyle}>{region}</option>
+          ))}
+        </select>
+        {errors.businessRegion && <span className="error">{errors.businessRegion}</span>}
+
+        {formData.businessRegion && (
+          <select
+            name="businessComuna"
+            value={formData.businessComuna || ""}
+            onChange={handleChange}
+            className="form-input"
+            style={selectStyle(formData.businessComuna)}
+          >
+            <option value="" style={optionPlaceholderStyle}>Selecciona una comuna *</option>
+            {regionesYComunas[formData.businessRegion].map(comuna => (
+              <option key={comuna} value={comuna} style={optionStyle}>{comuna}</option>
+            ))}
+          </select>
+        )}
+        {errors.businessComuna && <span className="error">{errors.businessComuna}</span>}
+
+        <div style={{ display: "flex", gap: "10px" }}>
+          <div style={{ flex: 2 }}>
+            <input
+              name="businessStreet"
+              placeholder="Calle *"
+              value={formData.businessStreet || ""}
+              onChange={handleChange}
+              className="form-input"
+            />
+            {errors.businessStreet && <span className="error">{errors.businessStreet}</span>}
+          </div>
+          <div style={{ flex: 1 }}>
+            <input
+              name="businessNumber"
+              placeholder="Número *"
+              value={formData.businessNumber || ""}
+              onChange={handleChange}
+              className="form-input"
+            />
+            {errors.businessNumber && <span className="error">{errors.businessNumber}</span>}
+          </div>
+        </div>
+
+        <input
+          name="businessDept"
+          placeholder="Depto / Piso / Block (opcional)"
+          value={formData.businessDept || ""}
+          onChange={handleChange}
+          className="form-input"
+        />
+
         {/* ÁREA */}
         <select
           name="businessArea"
@@ -217,7 +336,6 @@ function StepBusiness({ formData, setFormData, next, back }) {
         </select>
         {errors.businessArea && <span className="error">{errors.businessArea}</span>}
 
-        {/* CATEGORÍA */}
         {formData.businessArea && (
           <select
             name="businessCategory"
@@ -290,70 +408,6 @@ function StepBusiness({ formData, setFormData, next, back }) {
           </div>
         ))}
 
-        {/* DIRECCIÓN */}
-        <p style={labelStyle}>Dirección del emprendimiento *</p>
-
-        <select
-          name="businessRegion"
-          value={formData.businessRegion || ""}
-          onChange={handleChange}
-          className="form-input"
-          style={selectStyle(formData.businessRegion)}
-        >
-          <option value="" style={optionPlaceholderStyle}>Selecciona una región *</option>
-          {Object.keys(regionesYComunas).map(region => (
-            <option key={region} value={region} style={optionStyle}>{region}</option>
-          ))}
-        </select>
-        {errors.businessRegion && <span className="error">{errors.businessRegion}</span>}
-
-        {formData.businessRegion && (
-          <select
-            name="businessComuna"
-            value={formData.businessComuna || ""}
-            onChange={handleChange}
-            className="form-input"
-            style={selectStyle(formData.businessComuna)}
-          >
-            <option value="" style={optionPlaceholderStyle}>Selecciona una comuna *</option>
-            {regionesYComunas[formData.businessRegion].map(comuna => (
-              <option key={comuna} value={comuna} style={optionStyle}>{comuna}</option>
-            ))}
-          </select>
-        )}
-        {errors.businessComuna && <span className="error">{errors.businessComuna}</span>}
-
-        <div style={{ display: "flex", gap: "10px" }}>
-          <div style={{ flex: 2 }}>
-            <input
-              name="businessStreet"
-              placeholder="Calle *"
-              value={formData.businessStreet || ""}
-              onChange={handleChange}
-              className="form-input"
-            />
-            {errors.businessStreet && <span className="error">{errors.businessStreet}</span>}
-          </div>
-          <div style={{ flex: 1 }}>
-            <input
-              name="businessNumber"
-              placeholder="Número *"
-              value={formData.businessNumber || ""}
-              onChange={handleChange}
-              className="form-input"
-            />
-            {errors.businessNumber && <span className="error">{errors.businessNumber}</span>}
-          </div>
-        </div>
-
-        <input
-          name="businessDept"
-          placeholder="Depto / Piso / Block (opcional)"
-          value={formData.businessDept || ""}
-          onChange={handleChange}
-          className="form-input"
-        />
-
         {/* CHECKBOX DIRECCIÓN PÚBLICA */}
         <div style={{
           background: "rgba(255,0,0,0.08)",
@@ -378,13 +432,12 @@ function StepBusiness({ formData, setFormData, next, back }) {
               </strong>
               <br />
               <span style={{ opacity: 0.6, fontSize: "12px" }}>
-                Solo activa esta opción si tienes un local, taller o espacio físico al que recibes clientes. Tu dirección aparecerá en tu perfil público.
+                Solo activa esta opción si tienes un local, taller o espacio físico al que recibes clientes.
               </span>
             </span>
           </div>
         </div>
 
-        {/* BOTÓN FINALIZAR */}
         <button className="form-button" onClick={handleFinish} style={{ marginTop: "8px" }}>
           Finalizar registro 🚀
         </button>
