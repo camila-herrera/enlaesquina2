@@ -59,27 +59,26 @@ function StepBusiness({ formData, setFormData, next, back }) {
   const [verificando, setVerificando] = useState(false)
 
   useEffect(() => {
-    const nombre = formData.businessFantasyName || formData.businessName
-    if (!nombre || nombre.length < 3) {
-      setSlugDisponible(null)
-      return
-    }
+  if (!formData.businessFantasyName || formData.businessFantasyName.length < 3) {
+    setSlugDisponible(null)
+    return
+  }
 
-    const slug = generarSlugLocal(nombre)
-    setVerificando(true)
+  const slug = generarSlugLocal(formData.businessFantasyName)
+  setVerificando(true)
 
-    const timer = setTimeout(() => {
-      fetch(`${API_URL}/verificar-slug/${slug}`)
-        .then(res => res.json())
-        .then(data => {
-          setSlugDisponible(data.disponible)
-          setVerificando(false)
-        })
-        .catch(() => setVerificando(false))
-    }, 600)
+  const timer = setTimeout(() => {
+    fetch(`${API_URL}/verificar-slug/${slug}`)
+      .then(res => res.json())
+      .then(data => {
+        setSlugDisponible(data.disponible)
+        setVerificando(false)
+      })
+      .catch(() => setVerificando(false))
+  }, 600)
 
-    return () => clearTimeout(timer)
-  }, [formData.businessFantasyName, formData.businessName])
+  return () => clearTimeout(timer)
+}, [formData.businessFantasyName])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -129,7 +128,9 @@ function StepBusiness({ formData, setFormData, next, back }) {
     if (validate()) next()
   }
 
-  const slugPreview = generarSlugLocal(formData.businessFantasyName || formData.businessName || "")
+  const slugPreview = formData.businessFantasyName
+  ? generarSlugLocal(formData.businessFantasyName)
+  : ""
 
   return (
     <div className="form-container">
