@@ -83,7 +83,7 @@ function StepUser({ nextStep, formData, setFormData, goToTerms, onSaveAsClient }
 
         <input
           name="documento"
-          placeholder={formData.isForeign ? "Pasaporte" : "RUT (ej: 16964866-2)"}
+          placeholder={formData.isForeign ? "Pasaporte" : "RUT (ej: 12345678-9)"}
           value={formData.documento}
           onChange={handleChange}
           className="form-input"
