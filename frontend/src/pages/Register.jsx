@@ -2,6 +2,7 @@ import { useState } from "react"
 import StepUser from "../components/StepUser"
 import StepBusiness from "../components/StepBusiness"
 import Terms from "./Terms"
+import API_URL from "../config"
 
 function Register({ goToLogin, goBack, userLocation }) {
   const [step, setStep] = useState(1)
@@ -28,7 +29,7 @@ function Register({ goToLogin, goBack, userLocation }) {
     setLoading(true)
     setErrorServidor("")
     try {
-      const res = await fetch("http://localhost:3001/registro/cliente", {
+      const res = await fetch(`${API_URL}/registro/cliente`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -60,7 +61,6 @@ function Register({ goToLogin, goBack, userLocation }) {
     setLoading(true)
     setErrorServidor("")
     try {
-      // Usamos FormData para poder enviar imágenes
       const body = new FormData()
 
       body.append("nombre", formData.nombre)
@@ -89,17 +89,15 @@ function Register({ goToLogin, goBack, userLocation }) {
       body.append("socialX", formData.socialX || "")
       body.append("socialTiktok", formData.socialTiktok || "")
 
-      // Agregar imágenes
       if (formData.businessImages) {
         formData.businessImages.forEach(img => {
           if (img) body.append("imagenes", img)
         })
       }
 
-      const res = await fetch("http://localhost:3001/registro/emprendedor", {
+      const res = await fetch(`${API_URL}/registro/emprendedor`, {
         method: "POST",
         body
-        // ⚠️ NO pongas Content-Type aquí — el navegador lo setea solo con FormData
       })
 
       const data = await res.json()

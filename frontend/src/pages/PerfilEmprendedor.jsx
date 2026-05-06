@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useParams } from "react-router-dom"
+import API_URL from "../config"
 
 function PerfilEmprendedor() {
   const { slug } = useParams()
@@ -9,7 +10,7 @@ function PerfilEmprendedor() {
   const [imgActual, setImgActual] = useState(0)
 
   useEffect(() => {
-    fetch(`http://localhost:3001/perfil/${slug}`)
+    fetch(`${API_URL}/perfil/${slug}`)
       .then(res => res.json())
       .then(data => {
         if (data.error) {
@@ -58,22 +59,18 @@ function PerfilEmprendedor() {
       {imagenes.length > 0 && (
         <div style={styles.carrusel}>
 
-          {/* FONDO DIFUMINADO */}
           <div style={{
             ...styles.bgBlur,
             backgroundImage: `url(${imagenes[imgActual]})`
           }} />
 
-          {/* IMAGEN CONTENIDA */}
           <img
             src={imagenes[imgActual]}
             style={styles.carruselImg}
           />
 
-          {/* OVERLAY GRADIENTE ABAJO */}
           <div style={styles.carruselOverlay} />
 
-          {/* FLECHAS */}
           {imagenes.length > 1 && (
             <>
               <button onClick={anteriorImg} style={{ ...styles.flecha, left: "12px" }}>
@@ -83,7 +80,6 @@ function PerfilEmprendedor() {
                 ›
               </button>
 
-              {/* PUNTOS INDICADORES */}
               <div style={styles.indicador}>
                 {imagenes.map((_, i) => (
                   <div
@@ -99,7 +95,6 @@ function PerfilEmprendedor() {
             </>
           )}
 
-          {/* INFO SOBRE LA IMAGEN */}
           <div style={styles.headerOverlay}>
             <h1 style={styles.nombre}>{emprendimiento.nombre}</h1>
             {emprendimiento.nombre_fantasia && (
@@ -113,7 +108,6 @@ function PerfilEmprendedor() {
         </div>
       )}
 
-      {/* SI NO HAY IMÁGENES */}
       {imagenes.length === 0 && (
         <div style={styles.sinImagen}>
           <div style={styles.headerOverlay}>
@@ -128,13 +122,10 @@ function PerfilEmprendedor() {
         </div>
       )}
 
-      {/* CONTENIDO */}
       <div style={styles.content}>
 
-        {/* DESCRIPCIÓN */}
         <p style={styles.descripcion}>{emprendimiento.descripcion}</p>
 
-        {/* INFO */}
         <div style={styles.infoCard}>
           {emprendimiento.horario && (
             <p style={styles.infoRow}>🕐 {emprendimiento.horario}</p>
@@ -157,7 +148,6 @@ function PerfilEmprendedor() {
           )}
         </div>
 
-        {/* REDES SOCIALES */}
         <div style={styles.redes}>
           {emprendimiento.social_instagram && (
             <a
@@ -170,7 +160,7 @@ function PerfilEmprendedor() {
             </a>
           )}
           {emprendimiento.social_facebook && (
-             <a
+            <a
               href={emprendimiento.social_facebook}
               target="_blank"
               rel="noreferrer"
@@ -180,7 +170,7 @@ function PerfilEmprendedor() {
             </a>
           )}
           {emprendimiento.social_tiktok && (
-             <a
+            <a
               href={`https://tiktok.com/@${emprendimiento.social_tiktok}`}
               target="_blank"
               rel="noreferrer"
@@ -190,7 +180,7 @@ function PerfilEmprendedor() {
             </a>
           )}
           {emprendimiento.social_x && (
-             <a
+            <a
               href={`https://x.com/${emprendimiento.social_x}`}
               target="_blank"
               rel="noreferrer"
@@ -205,9 +195,8 @@ function PerfilEmprendedor() {
 
       </div>
 
-      {/* BOTÓN WHATSAPP FIJO */}
       {emprendimiento.telefono_wsp && (
-         <a
+        <a
           href={`https://wa.me/${emprendimiento.telefono_wsp}`}
           target="_blank"
           rel="noreferrer"
